@@ -1,0 +1,30 @@
+
+## pi-manager (Swarm manager + observability)
+- Grafana
+- Prometheus
+- Blackbox exporter (HTTP/ICMP/DNS probes)
+- Speedtest exporter (bandwidth snapshot)
+- Pi-hole (DNS redundancy)
+- Portainer
+- node-exporter
+
+## pi-worker-1 (DNS + encoding)
+- Pi-hole (primary DNS)
+- Media encoding worker
+- node-exporter
+
+## pi-worker-2 (media)
+- Plex
+- Transmission
+- node-exporter
+- External USB storage
+
+## pi-worker-3 (database)
+- PostgreSQL
+- Postgres exporter
+- node-exporter
+
+## ops-runner (automation)
+- Agent Host (internal API)
+- Local LLMs: **Mistral + Llama**
+- Agent Runner (scheduled briefs + webhook receiver)
