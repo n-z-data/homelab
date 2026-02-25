@@ -1,0 +1,20 @@
+sequenceDiagram
+  participant P as Prometheus
+  participant G as Grafana Alerting
+  participant R as ops-runner (Agent Runner webhook)
+  participant H as Agent Host (internal API)
+  participant L as Local LLMs (Mistral + Llama)
+  participant DB as PostgreSQL
+  participant N as Notifications (Discord/Email)
+
+  P->>G: Evaluate rules (internet/node/db/ingest/agent health)
+  G->>N: Discord notify (all severities)
+  alt severity = critical|high
+    G->>R: Webhook (token header)
+    R->>H: Request explanation prompt
+    H->>L: Generate response (Mistral/Llama)
+    R->>DB: Store run + markdown output
+    R->>N: Email incident explainer
+  else severity = warning
+    Note over G,R: Discord only (noise control)
+  end
