@@ -1,0 +1,55 @@
+flowchart TB
+  Internet((Internet)) --> Router[ISP Router / Gateway]
+
+  Router --> Switch[PoE Switch]
+  Router --> Ops[ops-runner<br/>Agent Host (internal API)<br/>Agent Runner (schedules + webhooks)<br/>Local LLMs: Mistral + Llama]
+
+  Switch --> PM[pi-manager<br/>Swarm manager + observability]
+  Switch --> PW1[pi-worker-1<br/>DNS + encoding]
+  Switch --> PW2[pi-worker-2<br/>Media services]
+  Switch --> PW3[pi-worker-3<br/>Database]
+  Switch --> NAS[NAS (storage)]
+
+  subgraph PM_SERVICES[pi-manager]
+    PM --> PiHoleM[Pi-hole (DNS redundancy)]
+    PM --> Prom[Prometheus]
+    PM --> Graf[Grafana]
+    PM --> BB[Blackbox exporter (HTTP/ICMP/DNS probes)]
+    PM --> ST[Speedtest exporter (bandwidth snapshot)]
+    PM --> NodeExpM[node-exporter]
+    PM --> Portainer[Portainer (Swarm UI)]
+  end
+
+  subgraph PW1_SERVICES[pi-worker-1]
+    PW1 --> PiHoleW1[Pi-hole (primary DNS)]
+    PW1 --> HB[Media encoding worker]
+    PW1 --> NodeExp1[node-exporter]
+  end
+
+  subgraph PW2_SERVICES[pi-worker-2]
+    PW2 --> Plex[Plex]
+    PW2 --> Trans[Transmission]
+    PW2 --> NodeExp2[node-exporter]
+    PW2 --> ExtHDD[External USB storage]
+  end
+
+  subgraph PW3_SERVICES[pi-worker-3]
+    PW3 --> PG[PostgreSQL]
+    PW3 --> PGExp[Postgres exporter]
+    PW3 --> NodeExp3[node-exporter]
+  end
+
+  %% Observability flows
+  Prom --> Graf
+  Prom -->|scrape| NodeExpM
+  Prom -->|scrape| NodeExp1
+  Prom -->|scrape| NodeExp2
+  Prom -->|scrape| NodeExp3
+  Prom -->|scrape| BB
+  Prom -->|scrape| ST
+  Prom -->|scrape| PGExp
+
+  %% Alerting + automation
+  Graf -->|webhook on critical/high| Ops
+  Ops -->|incident summaries| Ops
+  Ops -->|store outputs| PG
