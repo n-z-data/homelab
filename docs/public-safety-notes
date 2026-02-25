@@ -1,0 +1,10 @@
+# Public safety notes
+
+This repository intentionally omits:
+- internal IP addresses and hostnames beyond high-level node names
+- secrets/tokens/passwords
+- exact storage paths and mounts
+- detailed firewall/router configuration
+- any externally reachable endpoints
+
+Diagrams show architecture and flows, not a network blueprint.
